@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.GestureDetector
-
+import org.ejml.simple.SimpleMatrix
 
 
 /**
@@ -18,6 +18,7 @@ class DrawView : View {
 
     private val paint = Paint()
     private var updatedPointsListener : UpdatedPointsListener? = null
+    private var matrix : SimpleMatrix? = null
     private var points : MutableList<PointF>? = null
     private var preventDoubleTabs = System.currentTimeMillis()
     constructor(context: Context) : super(context) {
@@ -30,10 +31,18 @@ class DrawView : View {
     override fun onDraw(canvas : Canvas?){
         paint.color = ResourcesCompat.getColor(resources,R.color.colorLine,null)
         paint.strokeWidth = 2.5f
-        for (i in 0 until points!!.size-1){
-            var current = points!![i]
-            val next = points!![i+1]
-            canvas?.drawLine(current.x,current.y,next.x,next.y,paint)
+        if(matrix != null && matrix!!.numElements > 0) {
+            for (i in 0 until points!!.size - 1) {
+                var current = points!![i].x.toInt()
+                val next = points!![i + 1].x.toInt()
+                for (k in current..next - 1) {
+                    val v = k
+                    val j = k + 1
+                    val y = (((matrix!![3, i] * v + matrix!![2, i]) * v) + matrix!![1, i]) * v + matrix!![0, i]
+                    val y2 = (((matrix!![3, i] * j + matrix!![2, i]) * j) + matrix!![1, i]) * j + matrix!![0, i]
+                    canvas?.drawLine(k.toFloat(), y.toFloat(), (k + 1).toFloat(), y2.toFloat(), paint)
+                }
+            }
         }
         points?.forEach { it ->
             paint.color = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
@@ -62,7 +71,6 @@ class DrawView : View {
         points?.add(point)
 
         updatedPointsListener?.onPointsUpdated(points)
-        this.invalidate()
         preventDoubleTabs = System.currentTimeMillis()
         points!!.sortBy { it.x }
         return true
@@ -92,6 +100,11 @@ class DrawView : View {
 
     fun setUpdatedPointsListener(listener : UpdatedPointsListener){
         this.updatedPointsListener = listener
+    }
+
+    fun setMatrix(matrix : SimpleMatrix){
+        this.matrix = matrix
+        this.invalidate()
     }
 
     private fun init(){
