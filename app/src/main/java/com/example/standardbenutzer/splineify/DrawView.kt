@@ -35,12 +35,12 @@ class DrawView : View {
             for (i in 0 until points!!.size - 1) {
                 var current = points!![i].x.toInt()
                 val next = points!![i + 1].x.toInt()
-                for (k in current..next - 1) {
-                    val v = k
-                    val j = k + 1
+                for (k in current until next) {
+                    val v = k - current
+                    val j = v+1
                     val y = (((matrix!![3, i] * v + matrix!![2, i]) * v) + matrix!![1, i]) * v + matrix!![0, i]
-                    val y2 = (((matrix!![3, i] * j + matrix!![2, i]) * j) + matrix!![1, i]) * j + matrix!![0, i]
-                    canvas?.drawLine(k.toFloat(), y.toFloat(), (k + 1).toFloat(), y2.toFloat(), paint)
+                    val y1 = (((matrix!![3, i] * j + matrix!![2, i]) * j) + matrix!![1, i]) * j + matrix!![0, i]
+                    canvas?.drawLine(k.toFloat(), y.toFloat(), (k+1).toFloat(), y1.toFloat(), paint)
                 }
             }
         }

@@ -62,7 +62,7 @@ class AsyncMatrixSolver : AsyncTask<Any,SimpleMatrix,SimpleMatrix> {
 
         for(i in 0 until points.size-1){
             d[i,0] = (c[i+1,0] - c[i,0]) / (3*h[i,0 ])
-            b[i,0] = ((points[i+1].y - points[i].y) / (h[i,0])) - ((1/3)*h[i,0]*(c[i+1,0]+2*c[i,0]))
+            b[i,0] = ((points[i+1].y - points[i].y) / (h[i,0])) - (h[i,0]*(c[i+1,0]+2*c[i,0])/3.0)
         }
 
         var res = SimpleMatrix(4,points.size-1)
